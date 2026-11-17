@@ -1,0 +1,56 @@
+services:
+  eureka-server:
+    image: library-eureka:1.0.0
+    build:
+      context: .
+      dockerfile: eureka-server/Dockerfile
+    ports:
+      - "8761:8761"
+    networks:
+      - library-network
+
+  api-gateway:
+    image: library-api-gateway:1.0.0
+    build:
+      context: .
+      dockerfile: api-gateway/Dockerfile
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      - eureka-server
+    ports:
+      - "8080:8080"
+    networks:
+      - library-network
+
+  auth-service:
+    image: library-auth-service:1.0.0
+    build:
+      context: .
+      dockerfile: auth-service/Dockerfile
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      - eureka-server
+    ports:
+      - "8081:8081"
+    networks:
+      - library-network
+
+  book-service:
+    image: library-book-service:1.0.0
+    build:
+      context: .
+      dockerfile: book-service/Dockerfile
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+    depends_on:
+      - eureka-server
+    ports:
+      - "8082:8082"
+    networks:
+      - library-network
+
+networks:
+  library-network:
+    driver: bridge
